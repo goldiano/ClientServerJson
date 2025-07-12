@@ -21,5 +21,6 @@ public class Server {
     void startServer() throws IOException {
         ServerSocket serverSocket = new ServerSocket(port);
         Socket server = serverSocket.accept();
+        server.bind();
     }
 }
