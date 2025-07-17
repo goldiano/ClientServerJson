@@ -8,9 +8,9 @@ public class Main {
         Scanner scan = new Scanner(System.in);
         System.out.println("Podaj port dla serwera i klienta");
         int tempPort = scan.nextInt();
-        System.out.println("Podaj adres sieciowy ");
+        System.out.println("Podaj adres sieciowy dla klienta");
         String tempIP = scan.nextLine();
 
-        new Server(tempPort,tempIP);
+        new Server(tempPort);
     }
 }
