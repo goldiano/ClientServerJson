@@ -9,17 +9,13 @@ import java.time.LocalDateTime;
 
 public class Server {
     private LocalDateTime startTime;
+    private Gson gson = new Gson();
 
-    private final int port;
+    private final int port = 5000;
 
-    Server(int port) throws IOException {
-        this.port = port;
-
-        startTime = LocalDateTime.now();
-        startServer();
-    }
 
     private void startServer() throws IOException {
+        System.out.println("Server is starting: ");
         String lineCommand;
         ServerSocket serverSocket = new ServerSocket(port);
 
@@ -30,7 +26,7 @@ public class Server {
             while(socket.isConnected()) {
                 lineCommand = brIn.readLine();
                 System.out.println("Server get command: " + lineCommand);
-                bwOut.write(chooseCommand(lineCommand));
+                bwOut.write(chooseCommand(lineCommand) + "\n");
                 bwOut.flush();
 
                 if(lineCommand.equalsIgnoreCase("stop")) {
@@ -47,7 +43,6 @@ public class Server {
 
     private String chooseCommand(String lineCommand) {
         String command = null;
-        Gson gson = new Gson();
         switch(lineCommand.toLowerCase()) {
             case "help" :
                 command = ("""
@@ -66,12 +61,16 @@ public class Server {
                 break;
             case "stop" :
                 System.out.println("Server is shutdown");
-                command = ("Server will be shutdown now");
+                command = "Server will be shutdown now";
                 break;
             default:
-                command = ("Unknown command");
+                command = "Unknown command";
                 break;
         }
-        return gson.toJson(command);
+        return command;//gson.toJson(command);
+    }
+
+    public static void main(String[] args) throws IOException {
+        new Server().startServer();
     }
 }
