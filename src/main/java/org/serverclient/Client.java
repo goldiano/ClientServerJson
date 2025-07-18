@@ -3,7 +3,6 @@ package org.serverclient;
 import com.google.gson.Gson;
 
 import java.io.*;
-import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Scanner;
 
@@ -19,16 +18,20 @@ public class Client {
         System.out.println("Client is starting: ");
         Socket socket = new Socket(address,port);
         BufferedReader brIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        BufferedWriter bwOut = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+        PrintWriter pwOut = new PrintWriter(socket.getOutputStream(),true);
 
         System.out.println("Write command to Server. Maybe start with help ?");
         while(socket.isConnected()) {
-            String temp;
-            bwOut.write(scan.nextLine() + "\n");
-            bwOut.flush();
-            System.out.println(temp = brIn.readLine());
+            System.out.println("Waiting for command: ");
+            String temp = gson.toJson(scan.nextLine());
+            pwOut.println(temp);
+            temp = gson.fromJson(brIn.readLine(),String.class);
+            System.out.println(temp);
+            if(temp.equalsIgnoreCase("quit")) break;
+
         }
         socket.close();
+        System.exit(1);
 
 
     }

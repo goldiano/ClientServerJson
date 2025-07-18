@@ -5,10 +5,11 @@ import com.google.gson.Gson;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 public class Server {
-    private LocalDateTime startTime;
+    private final LocalDateTime startTime = LocalDateTime.now();
     private Gson gson = new Gson();
 
     private final int port = 5000;
@@ -21,23 +22,23 @@ public class Server {
 
         try (Socket socket = serverSocket.accept()) {
             BufferedReader brIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            BufferedWriter bwOut = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            PrintWriter pwOut = new PrintWriter(socket.getOutputStream(),true);
 
             while(socket.isConnected()) {
-                lineCommand = brIn.readLine();
+                lineCommand = gson.fromJson(brIn.readLine(), String.class);
                 System.out.println("Server get command: " + lineCommand);
-                bwOut.write(chooseCommand(lineCommand) + "\n");
-                bwOut.flush();
+                pwOut.println(chooseCommand(lineCommand));
 
                 if(lineCommand.equalsIgnoreCase("stop")) {
                     brIn.close();
-                    bwOut.close();
+                    pwOut.close();
                     socket.close();
+                    serverSocket.close();
                 }
             }
 
         } finally {
-            serverSocket.close();
+            System.exit(1);
         }
     }
 
@@ -53,6 +54,9 @@ public class Server {
                        \s""");
                 break;
             case "uptime":
+                Duration time = Duration.between((startTime), LocalDateTime.now());
+                command = String.format("Server uptime: %d hours, %d minutes, %d seconds",
+                        time.toHours(), time.toMinutes(), time.toSeconds());
                 break;
             case "info": command = """
                     version: 0.1.0
@@ -61,13 +65,13 @@ public class Server {
                 break;
             case "stop" :
                 System.out.println("Server is shutdown");
-                command = "Server will be shutdown now";
+                command = "quit";
                 break;
             default:
                 command = "Unknown command";
                 break;
         }
-        return command;//gson.toJson(command);
+        return gson.toJson(command);
     }
 
     public static void main(String[] args) throws IOException {
