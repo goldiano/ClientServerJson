@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 public class Server {
     private final LocalDateTime startTime = LocalDateTime.now();
-    private Gson gson = new Gson();
+    private final Gson gson = new Gson();
 
     private final int port = 5000;
 
@@ -43,7 +43,7 @@ public class Server {
     }
 
     private String chooseCommand(String lineCommand) {
-        String command = null;
+        String command;
         switch(lineCommand.toLowerCase()) {
             case "help" :
                 command = ("""
