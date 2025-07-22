@@ -1,3 +1,8 @@
+/**
+ * Starts the client and connects to the server on localhost:5000
+ * Sends string commands and prints the response.
+ */
+
 package org.serverclient;
 
 import com.google.gson.Gson;
@@ -37,8 +42,9 @@ public class Server {
                 }
             }
 
-        } finally {
-            System.exit(1);
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+            System.exit(0);
         }
     }
 
