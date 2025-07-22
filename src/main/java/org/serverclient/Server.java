@@ -43,10 +43,10 @@ public class Server {
     }
 
     private String chooseCommand(String lineCommand) {
-        String command;
+        String msg;
         switch(lineCommand.toLowerCase()) {
             case "help" :
-                command = ("""
+                msg = ("""
                         uptime: Returns the server time,
                         info: Returns server version and create time,
                         help: Returns the list of available commands,
@@ -54,24 +54,23 @@ public class Server {
                        \s""");
                 break;
             case "uptime":
-                Duration time = Duration.between((startTime), LocalDateTime.now());
-                command = String.format("Server uptime: %d hours, %d minutes, %d seconds",
+                Duration time = Duration.between(startTime, LocalDateTime.now());
+                msg = String.format("Server uptime: %d hours, %d minutes, %d seconds",
                         time.toHours(), time.toMinutes(), time.toSeconds());
                 break;
-            case "info": command = """
+            case "info": msg = """
                     version: 0.1.0
                     creation date 2025-07-14.
                     """;
                 break;
             case "stop" :
                 System.out.println("Server is shutdown");
-                command = "quit";
+                msg = "quit";
                 break;
             default:
-                command = "Unknown command";
-                break;
+                return gson.toJson(new ServerResponse("error","Unknown command"));
         }
-        return gson.toJson(command);
+        return gson.toJson(new ServerResponse("ok",msg));
     }
 
     public static void main(String[] args) throws IOException {

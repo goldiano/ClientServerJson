@@ -12,32 +12,43 @@ public class Client {
     private final String address = "localhost";
 
     private void clientStart() throws IOException {
-        Scanner scan = new Scanner(System.in);
+
         Gson gson = new Gson();
 
         System.out.println("Client is starting: ");
-        Socket socket = new Socket(address,port);
-        BufferedReader brIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        PrintWriter pwOut = new PrintWriter(socket.getOutputStream(),true);
+        try (Socket socket = new Socket(address, port);
+             BufferedReader brIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+             PrintWriter pwOut = new PrintWriter(socket.getOutputStream(), true);
+             Scanner scan = new Scanner(System.in)) {
 
-        System.out.println("Write command to Server. Maybe start with help ?");
-        while(socket.isConnected()) {
-            System.out.println("Waiting for command: ");
-            String temp = gson.toJson(scan.nextLine());
-            pwOut.println(temp);
-            temp = gson.fromJson(brIn.readLine(),String.class);
-            System.out.println(temp);
-            if(temp.equalsIgnoreCase("quit")) break;
+            System.out.println("Write command to Server. Maybe start with help ?");
+            while (socket.isConnected()) {
+                System.out.println("Waiting for command: ");
+                String temp = gson.toJson(scan.nextLine());
+                pwOut.println(temp);
+                ServerResponse response = gson.fromJson(brIn.readLine(), ServerResponse.class);
+                System.out.println("[" + response.status + "]\n" + response.message);
+                if (response.message.equalsIgnoreCase("quit")) break;
+
+            }
+
+        } catch (IOException e) {
+            System.err.println("Connection error: " + e.getMessage());
+
+            System.exit(1);
 
         }
-        socket.close();
-        System.exit(1);
 
 
     }
 
-    public static void main(String[] args) throws IOException {
-        new Client().clientStart();
+    public static void main(String[] args) {
+        try {
+            new Client().clientStart();
+        } catch (IOException e) {
+            System.err.println("Connection failed: " + e.getMessage());
+        }
     }
 }
+
 
